@@ -1,0 +1,5 @@
+django < 3
+gunicorn
+psycopg2
+ics
+requests
