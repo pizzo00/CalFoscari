@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from ics import Calendar as icsCalendar
 import requests
 from django.utils import timezone
-from univeCalendar.models import Course, Calendar, Lesson
+from univeCalendar.models import Course, Lesson
 
 
 class Command(BaseCommand):
@@ -17,21 +17,17 @@ class Command(BaseCommand):
         url = "https://www.unive.it/data/ajax/Didattica/generaics?afid=" + str(af_id)
         ics = icsCalendar(requests.get(url).text)
 
-        course = Course()
-        course.af_id = af_id
-        course.save()
+        course = Course.objects.get(af_id=af_id)
 
-        cal = Calendar()
-        cal.course = course
-        cal.save()
-
+        lessons = []
         for o in ics.events:
             l = Lesson()
-            l.calendar = cal
+            l.course = course
             l.name = o.name
             l.location = o.location
             l.begin_datetime = o.begin.datetime
             l.end_datetime = o.end.datetime
-            l.save()
+            lessons.append(l)
+        Lesson.objects.bulk_create(lessons)
 
         self.stdout.write("DONE!")
