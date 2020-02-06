@@ -88,7 +88,7 @@ def get_lessons2(locations):
         lesson_location = LessonLocation()
         # lesson_location.lesson = lesson
         lesson_location.name = l['TIPO_ATTIVITA'] if l['TIPO_ATTIVITA'] else ''
-        lesson_location.location = locations[l['AULA_ID']] if l['AULA_ID'] in locations else ""
+        lesson_location.location = locations[l['AULA_ID']] if l['AULA_ID'] in locations else ''
         lesson_location.prof = l['DOCENTI'] if l['DOCENTI'] else ''
         lesson_location.notes = l['NOTE'] if l['NOTE'] else ''
 
@@ -96,18 +96,23 @@ def get_lessons2(locations):
         if key in lessons_dict:
             lessons_dict[(ar_id, begin_datetime, end_datetime)].append(lesson_location)
         else:
-            lessons_dict[(ar_id, begin_datetime, end_datetime)] = []
+            lessons_dict[(ar_id, begin_datetime, end_datetime)] = [lesson_location]
 
     lessons = []
-    lessons_locations = []
+    lessons_locations = {}
+    pk = 0
+    pk_location = 0
     for k, vs in lessons_dict.items():
-        lesson = Lesson(ar_id=k[0], begin_datetime=k[1], end_datetime=k[2])
+        pk += 1
+        lesson = Lesson(pk=pk, ar_id=k[0], begin_datetime=k[1], end_datetime=k[2])
         lessons.append(lesson)
         for lesson_location in vs:
-            lesson_location.lesson = lesson
-            lessons_locations.append(lesson_location)
+            lesson_location.lesson_id = pk
+            us = lesson_location.get_unique_string()
+            if us not in lessons_locations:
+                lessons_locations[us] = lesson_location
     Lesson.objects.bulk_create(lessons)
-    LessonLocation.objects.bulk_create(lessons_locations)
+    LessonLocation.objects.bulk_create(lessons_locations.values())
 
 
 class Command(BaseCommand):

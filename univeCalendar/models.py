@@ -30,6 +30,7 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
+    id = models.IntegerField(blank=False, null=False, primary_key=True, verbose_name='PK')
     ar_id = models.IntegerField(blank=False, null=False, verbose_name='AR ID')
     begin_datetime = models.DateTimeField(null=False, blank=False, verbose_name="Begin Datetime")
     end_datetime = models.DateTimeField(null=False, blank=False, verbose_name="End Datetime")
@@ -59,6 +60,23 @@ class LessonLocation(models.Model):
     name = models.CharField(blank=False, null=False, verbose_name="Name", max_length=150)
     prof = models.CharField(blank=True, null=False, default='', verbose_name="Prof", max_length=150)
     notes = models.CharField(blank=True, null=False, default='', verbose_name="Notes", max_length=150)
+
+    def __eq__(self, other):
+        return isinstance(other, Lesson) and \
+               self.lesson.id == self.lesson.id and \
+               self.location == other.location and \
+               self.name == other.name and \
+               self.prof == other.prof and \
+               self.notes == other.notes
+
+    def get_unique_string(self):
+        return str(self.lesson_id) + self.location + self.name + self.prof + self.notes
+
+    def __hash__(self):
+        # return hash((self.lesson_id, self.location, self.name, self.prof, self.notes))
+        s = self.get_unique_string()
+        h = hash(s)
+        return h
 
     def __str__(self):
         return str(self.lesson) + " - " + self.location
