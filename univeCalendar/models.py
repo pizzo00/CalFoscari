@@ -34,11 +34,13 @@ class Lesson(models.Model):
     begin_datetime = models.DateTimeField(null=False, blank=False, verbose_name="Begin Datetime")
     end_datetime = models.DateTimeField(null=False, blank=False, verbose_name="End Datetime")
 
-    def __eq__(self, other):
-        return isinstance(other, Lesson) and \
-               self.ar_id == other.ar_id and \
-               self.begin_datetime == other.begin_datetime and \
-               self.end_datetime == other.end_datetime
+    locations = []
+
+    # def __eq__(self, other):
+    #     return isinstance(other, Lesson) and \
+    #            self.ar_id == other.ar_id and \
+    #            self.begin_datetime == other.begin_datetime and \
+    #            self.end_datetime == other.end_datetime
 
     def __str__(self):
         return str(self.ar_id) + " - " + str(self.begin_datetime)

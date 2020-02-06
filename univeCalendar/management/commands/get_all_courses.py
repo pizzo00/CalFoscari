@@ -51,13 +51,18 @@ def get_lessons(locations):
     url = "https://static.unive.it/sitows/didattica/lezioni"
     lessons_json = json.loads(requests.get(url).text)
 
-    lesson_locations = []
+    lessons = []
+    lessons_locations = []
     for l in lessons_json:
         ar_id = int(l['AR_ID'])
         begin_datetime = datetime.strptime(l['GIORNO'] + ' ' + l['INIZIO'], '%Y-%m-%d %H:%M')
         end_datetime = datetime.strptime(l['GIORNO'] + ' ' + l['FINE'], '%Y-%m-%d %H:%M')
 
-        lesson, created = Lesson.objects.get_or_create(ar_id=ar_id, begin_datetime=begin_datetime, end_datetime=end_datetime)
+        lesson = Lesson(ar_id=ar_id, begin_datetime=begin_datetime, end_datetime=end_datetime)
+        if lesson not in lessons:
+            lessons.append(lesson)
+        else:
+            lesson = next(x for x in lessons if x == lesson)
 
         lesson_location = LessonLocation()
         lesson_location.lesson = lesson
@@ -65,8 +70,44 @@ def get_lessons(locations):
         lesson_location.location = locations[l['AULA_ID']] if l['AULA_ID'] in locations else ""
         lesson_location.prof = l['DOCENTI'] if l['DOCENTI'] else ''
         lesson_location.notes = l['NOTE'] if l['NOTE'] else ''
-        lesson_locations.append(lesson_location)
-    LessonLocation.objects.bulk_create(lesson_locations)
+        lessons_locations.append(lesson_location)
+    Lesson.objects.bulk_create(lessons)
+    LessonLocation.objects.bulk_create(lessons_locations)
+
+
+def get_lessons2(locations):
+    url = "https://static.unive.it/sitows/didattica/lezioni"
+    lessons_json = json.loads(requests.get(url).text)
+
+    lessons_dict = {}
+    for l in lessons_json:
+        ar_id = int(l['AR_ID'])
+        begin_datetime = datetime.strptime(l['GIORNO'] + ' ' + l['INIZIO'], '%Y-%m-%d %H:%M')
+        end_datetime = datetime.strptime(l['GIORNO'] + ' ' + l['FINE'], '%Y-%m-%d %H:%M')
+
+        lesson_location = LessonLocation()
+        # lesson_location.lesson = lesson
+        lesson_location.name = l['TIPO_ATTIVITA'] if l['TIPO_ATTIVITA'] else ''
+        lesson_location.location = locations[l['AULA_ID']] if l['AULA_ID'] in locations else ""
+        lesson_location.prof = l['DOCENTI'] if l['DOCENTI'] else ''
+        lesson_location.notes = l['NOTE'] if l['NOTE'] else ''
+
+        key = (ar_id, begin_datetime, end_datetime)
+        if key in lessons_dict:
+            lessons_dict[(ar_id, begin_datetime, end_datetime)].append(lesson_location)
+        else:
+            lessons_dict[(ar_id, begin_datetime, end_datetime)] = []
+
+    lessons = []
+    lessons_locations = []
+    for k, vs in lessons_dict.items():
+        lesson = Lesson(ar_id=k[0], begin_datetime=k[1], end_datetime=k[2])
+        lessons.append(lesson)
+        for lesson_location in vs:
+            lesson_location.lesson = lesson
+            lessons_locations.append(lesson_location)
+    Lesson.objects.bulk_create(lessons)
+    LessonLocation.objects.bulk_create(lessons_locations)
 
 
 class Command(BaseCommand):
@@ -76,6 +117,6 @@ class Command(BaseCommand):
         get_course()
         s = get_site()
         l = get_location(s)
-        get_lessons(l)
+        get_lessons2(l)
 
         self.stdout.write("DONE!")
