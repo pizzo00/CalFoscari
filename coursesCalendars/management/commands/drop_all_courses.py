@@ -3,7 +3,7 @@ from django.db import connection
 from ics import Calendar as icsCalendar
 import requests
 from django.utils import timezone
-from univeCalendar.models import Course, Lesson, LessonLocation
+from coursesCalendars.models import Course, Lesson, LessonLocation
 
 
 def drop_table(table_name):

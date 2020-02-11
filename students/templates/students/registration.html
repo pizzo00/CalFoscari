@@ -1,0 +1,22 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/registration.css' %}">
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+    <form action="{{ app_path }}" method="post" id="login-form" class="form-registration text-center">
+        {% csrf_token %}
+        <a href="{% url 'home' %}"><img src="{% static 'img/logo.png' %}" class="img-fluid" alt="logo"/></a>
+        <h4 class="mb-3 mt-3 ml-1 font-weight-normal" style="text-align: center;">Register</h4>
+        {{ user_form.username.errors }}
+        <input type="text" name="username" autofocus="" maxlength="150" required="" id="id_username" class="form-control" placeholder="Username">
+        {{ user_form.password.errors }}
+        <input type="password" name="password" required="" id="id_password" class="form-control" placeholder="Password">
+        <input type="password" name="confirm_password" required="" id="id_confirm_password" class="form-control" placeholder="Confirm Password">
+        <button type="submit" class="btn btn-block btn-lg btn-primary">Login</button>
+    </form>
+{% endblock %}

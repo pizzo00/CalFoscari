@@ -30,12 +30,10 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
-    id = models.IntegerField(blank=False, null=False, primary_key=True, verbose_name='PK')
+    id = models.IntegerField(blank=False, null=False, primary_key=True, verbose_name='ID')
     ar_id = models.IntegerField(blank=False, null=False, verbose_name='AR ID')
     begin_datetime = models.DateTimeField(null=False, blank=False, verbose_name="Begin Datetime")
     end_datetime = models.DateTimeField(null=False, blank=False, verbose_name="End Datetime")
-
-    locations = []
 
     # def __eq__(self, other):
     #     return isinstance(other, Lesson) and \
@@ -55,6 +53,7 @@ class Lesson(models.Model):
 
 
 class LessonLocation(models.Model):
+    id = models.IntegerField(blank=False, null=False, primary_key=True, verbose_name='ID')
     lesson = models.ForeignKey('Lesson', null=False, blank=False, on_delete=models.CASCADE, verbose_name="Lesson")
     location = models.CharField(blank=True, null=False, default='', verbose_name="Location", max_length=150)
     name = models.CharField(blank=False, null=False, verbose_name="Name", max_length=150)
@@ -63,7 +62,7 @@ class LessonLocation(models.Model):
 
     def __eq__(self, other):
         return isinstance(other, Lesson) and \
-               self.lesson.id == self.lesson.id and \
+               self.lesson_id == self.lesson_id and \
                self.location == other.location and \
                self.name == other.name and \
                self.prof == other.prof and \
@@ -83,7 +82,7 @@ class LessonLocation(models.Model):
 
     class Meta:
         verbose_name = "Lesson Location"
-        verbose_name_plural = "Lessons Location"
+        verbose_name_plural = "Lessons Locations"
         indexes = [
             models.Index(fields=['location', ]),
         ]

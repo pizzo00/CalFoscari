@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 import json
 import requests
-from univeCalendar.models import Course, Lesson, LessonLocation
+from coursesCalendars.models import Course, Lesson, LessonLocation
 from datetime import datetime
 
 
@@ -51,34 +51,6 @@ def get_lessons(locations):
     url = "https://static.unive.it/sitows/didattica/lezioni"
     lessons_json = json.loads(requests.get(url).text)
 
-    lessons = []
-    lessons_locations = []
-    for l in lessons_json:
-        ar_id = int(l['AR_ID'])
-        begin_datetime = datetime.strptime(l['GIORNO'] + ' ' + l['INIZIO'], '%Y-%m-%d %H:%M')
-        end_datetime = datetime.strptime(l['GIORNO'] + ' ' + l['FINE'], '%Y-%m-%d %H:%M')
-
-        lesson = Lesson(ar_id=ar_id, begin_datetime=begin_datetime, end_datetime=end_datetime)
-        if lesson not in lessons:
-            lessons.append(lesson)
-        else:
-            lesson = next(x for x in lessons if x == lesson)
-
-        lesson_location = LessonLocation()
-        lesson_location.lesson = lesson
-        lesson_location.name = l['TIPO_ATTIVITA'] if l['TIPO_ATTIVITA'] else ''
-        lesson_location.location = locations[l['AULA_ID']] if l['AULA_ID'] in locations else ""
-        lesson_location.prof = l['DOCENTI'] if l['DOCENTI'] else ''
-        lesson_location.notes = l['NOTE'] if l['NOTE'] else ''
-        lessons_locations.append(lesson_location)
-    Lesson.objects.bulk_create(lessons)
-    LessonLocation.objects.bulk_create(lessons_locations)
-
-
-def get_lessons2(locations):
-    url = "https://static.unive.it/sitows/didattica/lezioni"
-    lessons_json = json.loads(requests.get(url).text)
-
     lessons_dict = {}
     for l in lessons_json:
         ar_id = int(l['AR_ID'])
@@ -104,9 +76,11 @@ def get_lessons2(locations):
     pk_location = 0
     for k, vs in lessons_dict.items():
         pk += 1
-        lesson = Lesson(pk=pk, ar_id=k[0], begin_datetime=k[1], end_datetime=k[2])
+        lesson = Lesson(id=pk, ar_id=k[0], begin_datetime=k[1], end_datetime=k[2])
         lessons.append(lesson)
         for lesson_location in vs:
+            pk_location += 1
+            lesson_location.id = pk_location
             lesson_location.lesson_id = pk
             us = lesson_location.get_unique_string()
             if us not in lessons_locations:
@@ -122,6 +96,6 @@ class Command(BaseCommand):
         get_course()
         s = get_site()
         l = get_location(s)
-        get_lessons2(l)
+        get_lessons(l)
 
         self.stdout.write("DONE!")

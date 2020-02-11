@@ -1,0 +1,30 @@
+body
+{
+  padding-top: 44px;
+}
+
+form.form-registration
+{
+  width: 100%;
+  max-width: 330px;
+  margin: auto;
+  font-weight: 400;
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+  z-index: 2;
+}
+
+form.form-registration>input
+{
+  margin-bottom: 10px;
+}
+
+.errorlist
+{
+  list-style-type: none;
+  padding: 0;
+  color: red;
+}

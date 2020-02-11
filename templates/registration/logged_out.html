@@ -1,0 +1,15 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/logged_out.css' %}">
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center form">
+  <h4 class="mb-3 mt-3 font-weight-normal" style="text-align: center;">Logged out</h4>
+  <a class="btn btn-lg btn-primary btn-block" href="{% url 'home' %}">Home Page</a>
+</div>
+{% endblock %}

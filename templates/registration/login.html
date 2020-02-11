@@ -1,0 +1,38 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+    <form action="{{ app_path }}" method="post" id="login-form" class="form-signin text-center">
+        {% csrf_token %}
+        <a href="{% url 'home' %}"><img src="{% static 'img/logo.png' %}" class="img-fluid" alt="logo"/></a>
+        <h4 class="mb-3 mt-3 ml-1 font-weight-normal" style="text-align: center;">Sign in</h4>
+        {% if user.is_authenticated %}
+            <p class="errornote">
+                You are authenticated as {{ username }}, but are not authorized to access this page.
+                <br>
+                Would you like to login to a different account?
+                <br>
+                <a href="{% url 'home' %}">Or go back to the Home Page?</a>
+            </p>
+        {% endif %}
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <p class="errorlist">
+                    {{ error }}
+                </p>
+            {% endfor %}
+        {% endif %}
+        {{ form.username.errors }}
+        <input type="text" name="username" autofocus="" maxlength="254" required="" id="id_username" class="my-form-control form-control" placeholder="Username">
+        {{ form.password.errors }}
+        <input type="password" name="password" required="" id="id_password" class="my-form-control form-control" placeholder="Password">
+        <input type="hidden" name="next" value="{{ next }}"/>
+        <button type="submit" class="btn btn-block btn-lg btn-primary">Login</button>
+    </form>
+{% endblock %}
