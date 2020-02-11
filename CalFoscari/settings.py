@@ -36,10 +36,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'django_otp',
     'django_otp.plugins.otp_totp',
     'coursesCalendars.apps.CoursesCalendarsConfig',
-    'students.apps.StudentsConfig',
+    'front.apps.FrontConfig',
 ]
 
 MIDDLEWARE = [

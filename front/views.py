@@ -1,7 +1,18 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from .forms import UserForm
 from django.contrib.auth.password_validation import validate_password
+
+
+# @login_required
+def home(request):
+    return render(request, 'front/home.html')
+
+
+@login_required
+def courses(request):
+    return render(request, 'front/searchCourses.html')
 
 
 def register(request):
@@ -13,8 +24,8 @@ def register(request):
             user.save()
             return redirect('home')
         else:
-            return render(request, 'students/registration.html', {'user_form': user_form})
+            return render(request, 'front/registration.html', {'user_form': user_form})
 
     else:
         user_form = UserForm()
-        return render(request, 'students/registration.html', {'user_form': user_form })
+        return render(request, 'front/registration.html', {'user_form': user_form})

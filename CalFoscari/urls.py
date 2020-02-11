@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import include, path
 from django.contrib.auth import views as auth_views
-from students.views import register
+from front.views import register
 from django_otp.admin import OTPAdminSite
 
 
@@ -17,5 +17,6 @@ urlpatterns = [
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('accounts/password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
     path('accounts/password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
-    path('', include('coursesCalendars.urls'))
+    path('', include('front.urls')),
+    path('api/', include('coursesCalendars.urls')),
 ]
