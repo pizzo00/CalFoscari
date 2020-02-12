@@ -1,0 +1,96 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+    {% url "coursesCalendars:courses" as api_courses %}
+    {% url "search_courses" as search_courses %}
+
+    <div class="row">
+        <div class="col-auto">
+            <h4>My Courses</h4>
+        </div>
+        <div class="col-auto">
+            <a class="btn btn-success" href="{{ search_courses }}"><i class="fas fa-plus"></i></a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl">
+            <table id="courses_table" class="align-center table table-striped" style="margin-top: 15px">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col" class="text-center">Year</th>
+                    <th scope="col">Partition</th>
+                    <th scope="col" class="text-center">Remove Course</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+
+        </div>
+    </div>
+
+<script>
+'use strict';
+
+let coursesTableBody = $('#courses_table tbody');
+
+function getData()
+{
+    let request =
+    {
+        url : '{{ api_courses }}?myCourses=true',
+        dataType : 'json',
+        success: function (response, state)
+        {
+            redrawTable(response);
+        }
+    };
+
+    jQuery.ajax(request);
+    return false;
+}
+
+function redrawTable(results)
+{
+    let newHtml = '';
+    for(let i in results)
+    {
+        newHtml += '<tr id="' + results[i].af_id + '">';
+        newHtml +=      '<th scope="row">' + results[i].code + '</th>';
+        newHtml +=      '<td>' + results[i].name + '</td>';
+        newHtml +=      '<td class="text-center">' + results[i].year + '</td>';
+        newHtml +=      '<td>' + results[i].partition + '</td>';
+        newHtml +=      '<td class="text-center"><button class="btn btn-sm btn-danger" type="button" onclick="unsaveCourse(this);">';
+            newHtml +=      '<i class="fas fa-trash-alt"></i>';
+        newHtml +=      '</button></td>';
+        newHtml += '</tr>';
+    }
+    coursesTableBody.html(newHtml);
+}
+
+function unsaveCourse(sender)
+{
+    let $row = $(sender).parent().parent();
+    let courseId = $row.attr('id');
+    let request =
+        {
+            url : '{{ api_courses }}' + courseId + '/unsave',
+            success: function ()
+            {
+                $row.remove();
+            }
+        };
+    jQuery.ajax(request);
+}
+
+getData();
+</script>
+
+
+{% endblock %}

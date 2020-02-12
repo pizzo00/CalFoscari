@@ -58,7 +58,7 @@ function performSearch(e)
         dataType : 'json',
         success: function (response, state)
         {
-            console.log(response);
+            {#console.log(response);#}
             redrawTable(response);
         }
     };
@@ -79,14 +79,48 @@ function redrawTable(results)
     for(let i in results)
     {
         newHtml += '<tr id="' + results[i].af_id + '">';
-        newHtml +=     '<th scope="row">' + results[i].code + '</th>';
-        newHtml +=     '<td>' + results[i].name + '</td>';
-        newHtml +=     '<td class="text-center">' + results[i].year + '</td>';
-        newHtml +=     '<td>' + results[i].partition + '</td>';
-        newHtml +=     '<td class="text-center"><button class="btn btn-sm btn-success" type="button"><i class="far fa-bookmark"></i></button></td>';
+        newHtml +=      '<th scope="row">' + results[i].code + '</th>';
+        newHtml +=      '<td>' + results[i].name + '</td>';
+        newHtml +=      '<td class="text-center">' + results[i].year + '</td>';
+        newHtml +=      '<td>' + results[i].partition + '</td>';
+        newHtml +=      '<td class="text-center"><button class="btn btn-sm btn-success" type="button" onclick="saveCourse(this);" data-saved="' + results[i].saved + '">';
+        if(results[i].saved)
+            newHtml +=      '<i class="fas fa-bookmark"></i>';
+        else
+            newHtml +=      '<i class="far fa-bookmark"></i>';
+        newHtml +=      '</button></td>';
         newHtml += '</tr>';
     }
     coursesTableBody.html(newHtml);
+}
+
+function saveCourse(sender)
+{
+    let $button = $(sender);
+    let courseId = $button.parent().parent().attr('id');
+    let saved = $button.data("saved");
+    let request;
+    if(saved)
+        request =
+        {
+            url : '{{ api_courses }}' + courseId + '/unsave',
+            success: function ()
+            {
+                $button.html('<i class="far fa-bookmark"></i>');
+                $button.data('saved', false);
+            }
+        };
+    else
+        request =
+        {
+            url : '{{ api_courses }}' + courseId + '/save',
+            success: function ()
+            {
+                $button.html('<i class="fas fa-bookmark"></i>');
+                $button.data('saved', true);
+            }
+        };
+    jQuery.ajax(request);
 }
 </script>
 

@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class UnivecalendarConfig(AppConfig):
+class CoursesCalendarsConfig(AppConfig):
     name = 'coursesCalendars'

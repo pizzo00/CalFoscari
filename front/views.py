@@ -11,8 +11,13 @@ def home(request):
 
 
 @login_required
-def courses(request):
-    return render(request, 'front/searchCourses.html')
+def search_courses(request):
+    return render(request, 'front/search_courses.html')
+
+
+@login_required
+def my_courses(request):
+    return render(request, 'front/my_courses.html')
 
 
 def register(request):

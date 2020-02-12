@@ -3,7 +3,8 @@ from .models import Course, Lesson, LessonLocation
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    saved = serializers.BooleanField()
 
     class Meta:
         model = Course
-        fields = '__all__'
+        fields = ('af_id', 'ar_id', 'name', 'code', 'year', 'partition', 'saved')

@@ -1,7 +1,19 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
-# from datetime import datetime
+class UserCourse(models.Model):
+    user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, verbose_name="User")
+    course = models.ForeignKey('Course', null=False, blank=False, on_delete=models.CASCADE, verbose_name="Course")
+    custom_name = models.CharField(default='', blank=True, null=False, verbose_name="Custom Name", max_length=150)
+
+    def __str__(self):
+        return str(self.user) + ' - ' + str(self.course)
+
+    class Meta:
+        verbose_name = "UserCourse"
+        verbose_name_plural = "UserCourses"
+        unique_together = ('user', 'course')
 
 
 class Course(models.Model):
@@ -15,7 +27,7 @@ class Course(models.Model):
 
     def __str__(self):
         if self.name != '':
-            return self.code + '-' + self.name
+            return self.code + ' - ' + self.name
         else:
             return self.code
 

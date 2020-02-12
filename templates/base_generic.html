@@ -23,7 +23,8 @@
     <body>
     {% block navbar %}
         {% url "home" as home %}
-        {% url "courses" as searchCourses %}
+        {% url "search_courses" as search_courses %}
+        {% url "my_courses" as my_courses %}
 
         {% url "admin:index" as admin %}
         {% url "password_change" as password_change %}
@@ -46,8 +47,8 @@
                         <li class="nav-item {% if request.path == home %} active {% endif %}">
                             <a class="nav-link" href="{{ home }}">Home</a>
                         </li>
-                        <li class="nav-item {% if request.path == searchCourses %} active {% endif %}">
-                            <a class="nav-link" href="{{ searchCourses }}">Search Courses</a>
+                        <li class="nav-item {% if request.path == my_courses %} active {% endif %}">
+                            <a class="nav-link" href="{{ my_courses }}">My Courses</a>
                         </li>
                     </ul>
 
