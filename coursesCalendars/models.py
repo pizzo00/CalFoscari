@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 
 class UserCourse(models.Model):
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, verbose_name="User")
-    course = models.ForeignKey('Course', null=False, blank=False, on_delete=models.CASCADE, verbose_name="Course")
+    course = models.ForeignKey('Course', null=False, blank=False, on_delete=models.DO_NOTHING, verbose_name="Course")
     custom_name = models.CharField(default='', blank=True, null=False, verbose_name="Custom Name", max_length=150)
+    custom_color = models.CharField(default='', blank=True, null=False, verbose_name="Custom Color", max_length=6)
 
     def __str__(self):
         return str(self.user) + ' - ' + str(self.course)

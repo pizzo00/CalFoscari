@@ -10,3 +10,21 @@ body {
   background-color: #f5f5f5;
 }
 
+.bg-foscari
+{
+  background-color: #ac0033;
+}
+
+.form-control:focus {
+  color: #495057;
+  background-color: #fff;
+  border-color: #ac0033;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(172, 0, 51, 0.25);
+}
+
+.onFocusDanger:focus
+{
+	background-color: #ac0033;
+}
+

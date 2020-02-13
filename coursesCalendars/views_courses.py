@@ -7,7 +7,7 @@ from .serializers import CourseSerializer
 from .models import UserCourse, Course, Lesson, LessonLocation
 
 
-class CoursesList(generics.ListCreateAPIView):
+class CoursesList(generics.ListAPIView):
     serializer_class = CourseSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -43,6 +43,14 @@ class CoursesList(generics.ListCreateAPIView):
                 res = []
 
         return res
+
+
+class CoursesDetail(generics.RetrieveAPIView):
+    serializer_class = CourseSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return Course.objects.all().annotate(saved=Count('usercourse', filter=Q(usercourse__user=self.request.user)))
 
 
 @login_required
