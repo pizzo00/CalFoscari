@@ -1,12 +1,72 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator, MinValueValidator
+import random
+
+
+class Color(models.Model):
+    r = models.PositiveSmallIntegerField(blank=False, null=False, validators=[MinValueValidator(0), MaxValueValidator(255)], verbose_name='Red')
+    g = models.PositiveSmallIntegerField(blank=False, null=False, validators=[MinValueValidator(0), MaxValueValidator(255)], verbose_name='Green')
+    b = models.PositiveSmallIntegerField(blank=False, null=False, validators=[MinValueValidator(0), MaxValueValidator(255)], verbose_name='Blue')
+    hex = models.CharField(max_length=7, blank=True, null=True, verbose_name='Hex Notation')
+
+    def get_hex_notation(self):
+        if self.r is None or self.g is None or self.b is None:
+            return ''
+        else:
+            return '#' + format(self.r, '02x') + format(self.g, '02x') + format(self.b, '02x')
+
+    def save(self, *args, **kwargs):
+        self.hex = self.get_hex_notation()
+        super().save(args, kwargs)
+
+    def __str__(self):
+        if self.hex is None:
+            return ''
+        else:
+            return self.hex
+
+    @staticmethod
+    def get_random_color(user: User):
+        used_color_id_list = UserCourse.objects.filter(user=user).values_list('custom_color', flat=True)
+        all_colors = Color.objects.all()
+        remaining_colors = all_colors.exclude(pk__in=used_color_id_list)
+
+        if len(remaining_colors) == 0:
+            remaining_colors = all_colors
+
+        if len(remaining_colors) == 0:
+            return None
+        else:
+            return random.choice(remaining_colors)
+
+    @staticmethod
+    def get_random_colors(user: User, qty: int):
+        used_color_id_list = UserCourse.objects.filter(user=user).values_list('custom_color', flat=True)
+        all_colors = Color.objects.all()
+        remaining_colors = all_colors.exclude(pk__in=used_color_id_list)
+
+        if len(remaining_colors) == 0:
+            remaining_colors = all_colors
+
+        if len(remaining_colors) == 0:
+            return None
+        else:
+            if len(remaining_colors) >= qty:
+                return random.choices(remaining_colors, k=qty)  # The remaining_colors is enough
+            else:
+                return random.choices(all_colors, k=qty)  # The remaining_colors isn't enough
+
+    class Meta:
+        verbose_name = "Color"
+        verbose_name_plural = "Colors"
 
 
 class UserCourse(models.Model):
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, verbose_name="User")
     course = models.ForeignKey('Course', null=False, blank=False, on_delete=models.DO_NOTHING, verbose_name="Course")
     custom_name = models.CharField(default='', blank=True, null=False, verbose_name="Custom Name", max_length=150)
-    custom_color = models.CharField(default='', blank=True, null=False, verbose_name="Custom Color", max_length=6)
+    custom_color = models.ForeignKey(Color, blank=False, null=True, on_delete=models.SET_NULL, verbose_name="Custom Color")
 
     def __str__(self):
         return str(self.user) + ' - ' + str(self.course)
@@ -22,7 +82,7 @@ class Course(models.Model):
     ar_id = models.IntegerField(blank=False, null=False, verbose_name='AR ID')
     name = models.CharField(blank=True, null=False, default='', verbose_name="Name", max_length=150)
     code = models.CharField(blank=False, null=False, default='CT?', verbose_name="Code", max_length=15)
-    year = models.SmallIntegerField(null=False, default=0, verbose_name="Year")
+    year = models.PositiveSmallIntegerField(null=False, default=0, verbose_name="Year")
     partition = models.CharField(blank=True, null=False, default='', verbose_name="Partition", max_length=150)
     creation_datetime = models.DateTimeField(null=False, blank=False, auto_now_add=True, verbose_name="Creation Datetime")
 

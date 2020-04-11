@@ -25,7 +25,7 @@ SECRET_KEY = 'rv)#@m1uea3vs-v%4t3vr#*f__+^_2^c%zsuvlocegbu%&a^^#'
 PRODUCTION = False
 DEBUG = not PRODUCTION
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.0.9']
 
 # Application definition
 

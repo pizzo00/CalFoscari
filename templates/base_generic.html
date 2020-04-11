@@ -24,6 +24,7 @@
     {% block navbar %}
         {% url "home" as home %}
         {% url "search_courses" as search_courses %}
+        {% url "calendar" as calendar %}
         {% url "my_courses" as my_courses %}
 
         {% url "admin:index" as admin %}
@@ -46,6 +47,9 @@
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item {% if request.path == home %} active {% endif %}">
                             <a class="nav-link" href="{{ home }}">Home</a>
+                        </li>
+                        <li class="nav-item {% if request.path == calendar %} active {% endif %}">
+                            <a class="nav-link" href="{{ calendar }}">Calendar</a>
                         </li>
                         <li class="nav-item {% if request.path == my_courses %} active {% endif %}">
                             <a class="nav-link" href="{{ my_courses }}">My Courses</a>

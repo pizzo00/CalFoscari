@@ -1,0 +1,21 @@
+
+/*OverWrite Fullcalendar Theme*/
+.fc-button
+{
+    color: #fff !important;
+    background-color: #ac0033 !important;
+    border-color: #b21f2d !important;
+}
+.fc-button:hover,
+.fc-button:focus,
+.fc-button:active
+{
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+}
+.fc-button:focus,
+.fc-button:active
+{
+    outline: 0 !important;
+    box-shadow: 0 0 0 0.2rem rgba(172, 0, 51, 0.25) !important;
+}

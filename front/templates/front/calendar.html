@@ -1,0 +1,125 @@
+{% extends "base_generic.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/core@4.4.0/main.min.css" integrity="sha256-HDFjvqItXdjW7TEM0cjN/9o9CRPkpo5hmGtd6AqN124=" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@4.4.0/main.min.js" integrity="sha256-niYpAJmpGSi28F0cwFTEQu2cCnJ9Jf+x2UkTYoXH3rk=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@4.4.0/locales/en-gb.js" integrity="sha256-c5aig17Zw7NJwvtFu60sTHakIH3YnHYaMU6xoKDz12c=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@4.4.0/main.min.css" integrity="sha256-Nt1jjcb7BjpIGL9BEJjnZN9sySJXdYIvyBhMoao3fug=" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@4.4.0/main.min.js" integrity="sha256-Ci3guQkgtPJpRMjkJCPy1Pg2DnU/8ZFQ+D0HxLaNO1o=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@4.4.0/main.min.css" integrity="sha256-WID6AXzUvFn5HbDibqulC5qT6/BEVF06KgFUYTFYDUM=" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@4.4.0/main.min.js" integrity="sha256-D4OwfygAhZJBz54RrbJ3tYzO2yNC+cySO56cCvdfxaA=" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="{% static 'css/calendar.css' %}" />
+
+    <style>
+    .fc-event-container
+    {
+        font-weight: bold;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+{% url "coursesCalendars:calendars" as api_calendars %}
+
+<h1>Calendar</h1>
+
+<div id='calendar'></div>
+
+<script>
+    let calendar;
+    document.addEventListener('DOMContentLoaded', function() {
+        let calendarEl = document.getElementById('calendar');
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: [ 'dayGrid', 'timeGrid' ],
+            defaultView: 'timeGridWeek',
+            height: 'auto',
+            minTime: '08:00:00',
+            maxTime: '21:00:00',
+            firstDay: 1, //Monday = 1
+            weekends: false,
+            allDaySlot: false,
+            nowIndicator: true,
+            events: getEvents,
+            titleFormat:
+            {
+                month: 'long',
+                year: 'numeric',
+                day: 'numeric',
+            },
+            columnHeaderFormat:
+            {
+                //weekday: 'long',
+                //day: '2-digit',
+                day: 'numeric',
+                omitCommas: true
+            },
+            slotDuration: '00:15:00',
+            slotLabelInterval: '01:00:00',
+            slotLabelFormat:
+            {
+                hour: 'numeric',
+                hour12: false,
+                minute: '2-digit',
+                omitZeroMinute: false,
+                meridiem: false
+            },
+            eventTimeFormat:
+            {
+                hour: 'numeric',
+                hour12: false,
+                minute: '2-digit',
+                omitZeroMinute: false,
+                meridiem: false
+            },
+        });
+
+        function getTextColor(rgb)
+        {
+            // https://www.w3.org/TR/AERT/#color-contrast
+            rgb = rgb.split('');
+            let r = parseInt(rgb[1]+rgb[2], 16)
+            let g = parseInt(rgb[3]+rgb[4], 16)
+            let b = parseInt(rgb[5]+rgb[6], 16)
+            let brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return (brightness > 127) ? '#000000' : '#ffffff';
+        }
+
+        function getEvents(info, successCallback, failureCallback)
+        {
+            let request =
+            {
+                url : '{{ api_calendars }}?from=' + info.start.toISOString().split('T')[0] + '&to=' + info.end.toISOString().split('T')[0],
+                dataType : 'json',
+                success: function (response, state)
+                {
+                    let output = [];
+                    for(let l in response['lessons'])
+                    {
+                        let lesson = response['lessons'][l];
+                        let course = response['courses'][lesson['ar_id']];
+                        output.push(
+                            {
+                                title: course['name'],
+                                start: lesson['begin_datetime'],
+                                end: lesson['end_datetime'],
+                                color: course['custom_color'],
+                                textColor: getTextColor(course['custom_color']),
+                            });
+                    }
+
+                    successCallback(output);
+                },
+                error: failureCallback,
+            };
+            jQuery.ajax(request);
+        }
+
+        calendar.render();
+    });
+</script>
+{% endblock %}

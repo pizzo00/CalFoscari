@@ -25,6 +25,7 @@
                     <th scope="col">Name</th>
                     <th scope="col" class="text-center">Year</th>
                     <th scope="col">Partition</th>
+                    <th scope="col">Color</th>
                     <th scope="col" class="text-center">Remove Course</th>
                   </tr>
                 </thead>
@@ -66,6 +67,7 @@ function redrawTable(results)
         newHtml +=      '<td>' + results[i].name + '</td>';
         newHtml +=      '<td class="text-center">' + results[i].year + '</td>';
         newHtml +=      '<td>' + results[i].partition + '</td>';
+        newHtml +=      '<td>' + 'Color' + '</td>';
         newHtml +=      '<td class="text-center"><button class="btn btn-sm btn-danger" type="button" onclick="unsaveCourse(this);">';
             newHtml +=      '<i class="fas fa-trash-alt"></i>';
         newHtml +=      '</button></td>';

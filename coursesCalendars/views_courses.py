@@ -1,10 +1,10 @@
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework import generics, permissions
 from django.contrib.auth.decorators import login_required
-from .serializers import CourseSerializer
-from .models import UserCourse, Course, Lesson, LessonLocation
+from .serializers import CourseSerializer, UserCourseSerializer
+from .models import UserCourse, Course, Lesson, LessonLocation, Color
 
 
 class CoursesList(generics.ListAPIView):
@@ -53,11 +53,40 @@ class CoursesDetail(generics.RetrieveAPIView):
         return Course.objects.all().annotate(saved=Count('usercourse', filter=Q(usercourse__user=self.request.user)))
 
 
+class UserCoursesList(generics.ListAPIView):
+    serializer_class = UserCourseSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        qs = UserCourse.objects.filter(user=self.request.user).select_related('custom_color').annotate(custom_color_hex=F('custom_color__hex'))
+        unsetted_color = qs.filter(custom_color=None)
+
+        if unsetted_color.count() > 0:
+            new_colors = Color.get_random_colors(self.request.user, len(unsetted_color))
+            i = 0
+            for el in unsetted_color:
+                el.custom_color = new_colors[i]
+                i += 1
+            UserCourse.objects.bulk_update(unsetted_color, fields=['custom_color', ])
+            qs = UserCourse.objects.filter(user=self.request.user).select_related('custom_color').annotate(custom_color_hex=F('custom_color__hex'))
+
+        return qs
+
+
+class UserCoursesDetail(generics.RetrieveAPIView):
+    serializer_class = UserCourseSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return UserCourse.objects.filter(usercourse__user=self.request.user)
+
+
 @login_required
 def save_course(request, pk):
     saved = UserCourse()
     saved.user = request.user
     saved.course_id = pk
+    saved.custom_color = Color.get_random_color(saved.user)
     saved.save()
     return HttpResponse(status=200)
 

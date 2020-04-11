@@ -1,4 +1,4 @@
-from django.db.models import Q, Count, Prefetch
+from django.db.models import Q, Count, Prefetch, F
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework import generics, permissions
@@ -17,9 +17,9 @@ def get_calendar(request):
         return HttpResponse(status=400)
 
     from_time = datetime.strptime(from_time, '%Y-%m-%d')
-    to_time = datetime.strptime(to_time + ' 23:59', '%Y-%m-%d %H:%M')
+    to_time = datetime.strptime(to_time + ' 00:01', '%Y-%m-%d %H:%M')  # End Time Exclusive
 
-    user_courses = UserCourse.objects.filter(user=request.user).select_related('course')
+    user_courses = UserCourse.objects.filter(user=request.user).select_related('course').select_related('custom_color')
     lessons = Lesson.objects\
         .filter(
             ar_id__in=user_courses.values_list('course__ar_id', flat=True),
@@ -31,20 +31,20 @@ def get_calendar(request):
     data = {}
     courses_json = {}
     for c in user_courses:
-        courses_json[c.course.af_id] = {}
-        courses_json[c.course.af_id]['af_id'] = c.course.af_id
-        courses_json[c.course.af_id]['ar_id'] = c.course.ar_id
-        courses_json[c.course.af_id]['name'] = c.course.name
-        courses_json[c.course.af_id]['code'] = c.course.code
-        courses_json[c.course.af_id]['partition'] = c.course.partition
-        courses_json[c.course.af_id]['custom_name'] = c.custom_name
-        courses_json[c.course.af_id]['color'] = c.custom_color
+        courses_json[c.course.ar_id] = {}
+        # courses_json[c.course.ar_id]['af_id'] = c.course.af_id
+        courses_json[c.course.ar_id]['af_id'] = c.course.af_id
+        courses_json[c.course.ar_id]['name'] = c.course.name
+        courses_json[c.course.ar_id]['code'] = c.course.code
+        courses_json[c.course.ar_id]['partition'] = c.course.partition
+        courses_json[c.course.ar_id]['custom_name'] = c.custom_name
+        courses_json[c.course.ar_id]['custom_color'] = c.custom_color.hex
     data['courses'] = courses_json
 
     lessons_json = {}
     for l in lessons:
         lessons_json[l.id] = {
-            'id': l.id,
+            # 'id': l.id,
             'ar_id': l.ar_id,
             'begin_datetime': l.begin_datetime.isoformat(),
             'end_datetime': l.end_datetime.isoformat(),

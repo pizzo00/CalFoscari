@@ -11,6 +11,11 @@ def home(request):
 
 
 @login_required
+def calendar(request):
+    return render(request, 'front/calendar.html')
+
+
+@login_required
 def search_courses(request):
     return render(request, 'front/search_courses.html')
 

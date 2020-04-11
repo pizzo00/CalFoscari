@@ -1,7 +1,20 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from .models import UserCourse, Course, Lesson, LessonLocation
+from .models import UserCourse, Course, Lesson, LessonLocation, Color
+
+
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ('id', '__str__')
+    search_fields = ('id', '__str__')
+    # list_filter = ('user',)
+    readonly_fields = ('hex', 'color_preview', )
+
+    def color_preview(self, instance):
+        hex_notation = ''
+        if instance is not None:
+            hex_notation = instance.get_hex_notation()
+        return format_html("<div style=\"height: 30px; width: 30px; background-color: {}\"></div>", hex_notation)
 
 
 class UserCourseAdmin(admin.ModelAdmin):
@@ -37,6 +50,7 @@ class LessonLocationAdmin(admin.ModelAdmin):
     readonly_fields = ('lesson', )
 
 
+admin.site.register(Color, ColorAdmin)
 admin.site.register(UserCourse, UserCourseAdmin)
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Lesson, LessonAdmin)

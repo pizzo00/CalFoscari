@@ -8,3 +8,11 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ('af_id', 'ar_id', 'name', 'code', 'year', 'partition', 'saved')
+
+
+class UserCourseSerializer(serializers.ModelSerializer):
+    custom_color_hex = serializers.CharField()
+
+    class Meta:
+        model = UserCourse
+        fields = ('course', 'custom_name', 'custom_color', 'custom_color_hex')
