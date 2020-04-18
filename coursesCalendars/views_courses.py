@@ -13,6 +13,7 @@ class CoursesList(generics.ListAPIView):
 
     def get_queryset(self):
         my_courses = self.request.query_params.get('myCourses', False)
+        only_with_lesson = self.request.query_params.get('has_lesson', True)
         search = self.request.query_params.get('search', '')
         year = self.request.query_params.get('year', None)
 
@@ -20,6 +21,9 @@ class CoursesList(generics.ListAPIView):
             res = Course.objects.filter(usercourse__user=self.request.user).extra(select={'saved': 1})
         else:
             res = Course.objects.all().annotate(saved=Count('usercourse', filter=Q(usercourse__user=self.request.user)))
+
+            if only_with_lesson:
+                res = res.filter(has_lessons=True)
 
             if year is not None and year.isdigit():
                 res = res.filter(year__exact=year)

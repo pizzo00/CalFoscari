@@ -64,7 +64,7 @@ class Color(models.Model):
 
 class UserCourse(models.Model):
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, verbose_name="User")
-    course = models.ForeignKey('Course', null=False, blank=False, on_delete=models.DO_NOTHING, verbose_name="Course")
+    course = models.ForeignKey('Course', null=False, blank=False, db_constraint=False, on_delete=models.DO_NOTHING, verbose_name="Course")
     custom_name = models.CharField(default='', blank=True, null=False, verbose_name="Custom Name", max_length=150)
     custom_color = models.ForeignKey(Color, blank=False, null=True, on_delete=models.SET_NULL, verbose_name="Custom Color")
 
@@ -77,6 +77,45 @@ class UserCourse(models.Model):
         unique_together = ('user', 'course')
 
 
+class Degree(models.Model):
+    degree_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Degree Code')
+    curriculum_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Curriculum Code')
+    degree_type_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Type of Degree Code')
+    degree_description = models.CharField(blank=False, null=False, max_length=150, verbose_name='Degree Description')
+    curriculum_description = models.CharField(blank=False, null=False, max_length=150, verbose_name='Curriculum Description')
+    degree_type_description = models.CharField(blank=False, null=False, max_length=150, verbose_name='Type of Degree Description')
+
+    def __str__(self):
+        return self.degree_code + ' - ' + self.curriculum_code
+
+    class Meta:
+        verbose_name = "Degree"
+        verbose_name_plural = "Degrees"
+        unique_together = ('degree_code', 'curriculum_code',)
+        indexes = [
+            models.Index(fields=['degree_code']),
+            models.Index(fields=['degree_description']),
+            models.Index(fields=['curriculum_description']),
+        ]
+
+
+class DegreeCourses(models.Model):
+    degree_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Degree Code')
+    curriculum_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Curriculum Code')
+    af_id = models.IntegerField(blank=False, null=False, verbose_name='AF ID')
+
+    def __str__(self):
+        return self.degree_code + ' - ' + str(self.af_id)
+
+    class Meta:
+        verbose_name = "DegreeCourses"
+        verbose_name_plural = "DegreesCourses"
+        unique_together = ('degree_code', 'curriculum_code', 'af_id')
+        indexes = [
+            models.Index(fields=['degree_code', 'curriculum_code']),
+        ]
+
+
 class Course(models.Model):
     af_id = models.IntegerField(blank=False, null=False, verbose_name='AF ID', primary_key=True)
     ar_id = models.IntegerField(blank=False, null=False, verbose_name='AR ID')
@@ -85,6 +124,7 @@ class Course(models.Model):
     year = models.PositiveSmallIntegerField(null=False, default=0, verbose_name="Year")
     partition = models.CharField(blank=True, null=False, default='', verbose_name="Partition", max_length=150)
     creation_datetime = models.DateTimeField(null=False, blank=False, auto_now_add=True, verbose_name="Creation Datetime")
+    has_lessons = models.BooleanField(null=False, blank=False, default=True, verbose_name="Has Lesson")
 
     def __str__(self):
         if self.name != '':
@@ -113,6 +153,10 @@ class Lesson(models.Model):
     #            self.ar_id == other.ar_id and \
     #            self.begin_datetime == other.begin_datetime and \
     #            self.end_datetime == other.end_datetime
+
+    @staticmethod
+    def get_ar_ids_of_courses_with_lessons():
+        return Lesson.objects.all().values_list('ar_id', flat=True).distinct()
 
     def __str__(self):
         return str(self.ar_id) + " - " + str(self.begin_datetime)

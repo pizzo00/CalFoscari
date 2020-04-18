@@ -1,11 +1,42 @@
 from django.core.management.base import BaseCommand
 import json
 import requests
-from coursesCalendars.models import Course, Lesson, LessonLocation
+from coursesCalendars.models import Course, Lesson, LessonLocation, Degree, DegreeCourses
 from datetime import datetime
 
 
-def get_site():
+def get_degrees():
+    url = "http://static.unive.it/sitows/didattica/corsi"
+    degrees_json = json.loads(requests.get(url).text)
+
+    degrees = []
+    for d in degrees_json:
+        degree = Degree()
+        degree.degree_code = d['CDS_COD']
+        degree.curriculum_code = d['PDS_COD']
+        degree.degree_type_code = d['TIPO_CORSO_COD']
+        degree.degree_description = d['CDS_DES']
+        degree.curriculum_description = d['PDS_DES']
+        degree.degree_type_description = d['TIPO_CORSO_DES']
+        degrees.append(degree)
+    Degree.objects.bulk_create(degrees)
+
+
+def get_degrees_courses():
+    url = "https://static.unive.it/sitows/didattica/corsiinsegnamenti"
+    degrees_courses_json = json.loads(requests.get(url).text)
+
+    degrees_courses = []
+    for dc in degrees_courses_json:
+        degree_courses = DegreeCourses()
+        degree_courses.degree_code = dc['CDS_COD']
+        degree_courses.curriculum_code = dc['PDS_COD']
+        degree_courses.af_id = dc['AF_ID']
+        degrees_courses.append(degree_courses)
+    DegreeCourses.objects.bulk_create(degrees_courses)
+
+
+def get_sites():
     url = "https://static.unive.it/sitows/didattica/sedi"
     sites_json = json.loads(requests.get(url).text)
 
@@ -16,7 +47,7 @@ def get_site():
     return output
 
 
-def get_location(sites):
+def get_locations(sites):
     url = "https://static.unive.it/sitows/didattica/aule"
     locations_json = json.loads(requests.get(url).text)
 
@@ -28,23 +59,6 @@ def get_location(sites):
             output[l['AULA_ID']] = l['NOME']
 
     return output
-
-
-def get_course():
-    url = "https://static.unive.it/sitows/didattica/insegnamenti"
-    courses_json = json.loads(requests.get(url).text)
-
-    courses = []
-    for c in courses_json:
-        course = Course()
-        course.af_id = c['AF_ID']
-        course.ar_id = c['AR_ID']
-        course.name = c['NOME'] if c['NOME'] else ""
-        course.code = c['CODICE'] if c['CODICE'] else ""
-        course.year = c['ANNO_CORSO'] if c['ANNO_CORSO'] else 0
-        course.partition = c['PARTIZIONE'] if c['PARTIZIONE'] else ""
-        courses.append(course)
-    Course.objects.bulk_create(courses)
 
 
 def get_lessons(locations):
@@ -89,13 +103,34 @@ def get_lessons(locations):
     LessonLocation.objects.bulk_create(lessons_locations.values())
 
 
+def get_courses(ar_ids_of_courses_with_lessons):
+    url = "https://static.unive.it/sitows/didattica/insegnamenti"
+    courses_json = json.loads(requests.get(url).text)
+
+    courses = []
+    for c in courses_json:
+        course = Course()
+        course.af_id = c['AF_ID']
+        course.ar_id = c['AR_ID']
+        course.name = c['NOME'] if c['NOME'] else ""
+        course.name = course.name[0].upper() + course.name[1:].lower()
+        course.code = c['CODICE'] if c['CODICE'] else ""
+        course.year = c['ANNO_CORSO'] if c['ANNO_CORSO'] else 0
+        course.partition = c['PARTIZIONE'] if c['PARTIZIONE'] else ""
+        course.has_lessons = int(course.ar_id) in ar_ids_of_courses_with_lessons
+        courses.append(course)
+    Course.objects.bulk_create(courses)
+
+
 class Command(BaseCommand):
     help = 'Save a all Course in database'
 
     def handle(self, *args, **kwargs):
-        get_course()
-        s = get_site()
-        l = get_location(s)
-        get_lessons(l)
+        get_degrees()
+        get_degrees_courses()
+        sites = get_sites()
+        locations = get_locations(sites)
+        get_lessons(locations)
+        get_courses(set(Lesson.get_ar_ids_of_courses_with_lessons()))
 
         self.stdout.write("DONE!")

@@ -17,7 +17,7 @@
     <style>
     .fc-event-container
     {
-        font-weight: bold;
+        {#font-weight: bold;#}
     }
     </style>
 {% endblock %}
@@ -27,16 +27,18 @@
 
 <h1>Calendar</h1>
 
-<div id='calendar'></div>
+<div id="calendarContainer" class="col row">
+    <div id='calendar'></div>
+</div>
 
 <script>
     let calendar;
     document.addEventListener('DOMContentLoaded', function() {
         let calendarEl = document.getElementById('calendar');
 
-        calendar = new FullCalendar.Calendar(calendarEl, {
+        calendarConfig =
+        {
             plugins: [ 'dayGrid', 'timeGrid' ],
-            defaultView: 'timeGridWeek',
             height: 'auto',
             minTime: '08:00:00',
             maxTime: '21:00:00',
@@ -44,6 +46,7 @@
             weekends: false,
             allDaySlot: false,
             nowIndicator: true,
+            slotEventOverlap: false,
             events: getEvents,
             titleFormat:
             {
@@ -51,14 +54,8 @@
                 year: 'numeric',
                 day: 'numeric',
             },
-            columnHeaderFormat:
-            {
-                //weekday: 'long',
-                //day: '2-digit',
-                day: 'numeric',
-                omitCommas: true
-            },
-            slotDuration: '00:15:00',
+            //slotDuration: '00:15:00',
+            slotDuration: '00:30:00',
             slotLabelInterval: '01:00:00',
             slotLabelFormat:
             {
@@ -76,24 +73,63 @@
                 omitZeroMinute: false,
                 meridiem: false
             },
-        });
+        };
+
+        if($(window).width() < 770)
+        {
+            calendarConfig.defaultView = 'timeGridDay';
+            calendarConfig.columnHeaderFormat = {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+            };
+            calendarConfig.header = {
+                left:   '',
+                center: '',
+                right:  'today prev,next'
+            };
+        }
+        else
+        {
+            calendarConfig.defaultView = 'timeGridWeek';
+            calendarConfig.columnHeaderFormat=
+            {
+                //weekday: 'long',
+                //day: '2-digit',
+                day: 'numeric',
+                omitCommas: true
+            };
+        }
+
+        calendar = new FullCalendar.Calendar(calendarEl, calendarConfig);
 
         function getTextColor(rgb)
         {
             // https://www.w3.org/TR/AERT/#color-contrast
             rgb = rgb.split('');
-            let r = parseInt(rgb[1]+rgb[2], 16)
-            let g = parseInt(rgb[3]+rgb[4], 16)
-            let b = parseInt(rgb[5]+rgb[6], 16)
+            let r = parseInt(rgb[1] + rgb[2], 16)
+            let g = parseInt(rgb[3] + rgb[4], 16)
+            let b = parseInt(rgb[5] + rgb[6], 16)
             let brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
             return (brightness > 127) ? '#000000' : '#ffffff';
         }
 
+        function getLocalDate(value)
+        {
+            return new Date(value.getTime() - (value.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+        }
+
         function getEvents(info, successCallback, failureCallback)
         {
+            console.log(info.start);
+            console.log(info.start.toISOString());
+            console.log(info.start.toISOString().split('T')[0]);
+            console.log(info.end);
+            console.log(info.end.toISOString());
+            console.log(info.end.toISOString().split('T')[0]);
             let request =
             {
-                url : '{{ api_calendars }}?from=' + info.start.toISOString().split('T')[0] + '&to=' + info.end.toISOString().split('T')[0],
+                url : '{{ api_calendars }}?from=' + getLocalDate(info.start) + '&to=' + getLocalDate(info.end),
                 dataType : 'json',
                 success: function (response, state)
                 {
@@ -116,7 +152,10 @@
                 },
                 error: failureCallback,
             };
-            jQuery.ajax(request);
+            jQuery.ajax(request).then(function()
+            {
+                calendar.render();
+            });
         }
 
         calendar.render();
