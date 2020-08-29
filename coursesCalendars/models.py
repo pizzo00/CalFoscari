@@ -65,7 +65,7 @@ class Color(models.Model):
 class UserCourse(models.Model):
     user = models.ForeignKey(User, null=False, blank=False, on_delete=models.CASCADE, verbose_name="User")
     course = models.ForeignKey('Course', null=False, blank=False, db_constraint=False, on_delete=models.DO_NOTHING, verbose_name="Course")
-    custom_name = models.CharField(default='', blank=True, null=False, verbose_name="Custom Name", max_length=150)
+    custom_name = models.CharField(default='', blank=True, null=False, verbose_name="Custom Name", max_length=250)
     custom_color = models.ForeignKey(Color, blank=False, null=True, on_delete=models.SET_NULL, verbose_name="Custom Color")
 
     def __str__(self):
@@ -78,12 +78,12 @@ class UserCourse(models.Model):
 
 
 class Degree(models.Model):
-    degree_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Degree Code')
-    curriculum_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Curriculum Code')
-    degree_type_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Type of Degree Code')
-    degree_description = models.CharField(blank=False, null=False, max_length=150, verbose_name='Degree Description')
-    curriculum_description = models.CharField(blank=False, null=False, max_length=150, verbose_name='Curriculum Description')
-    degree_type_description = models.CharField(blank=False, null=False, max_length=150, verbose_name='Type of Degree Description')
+    degree_code = models.CharField(blank=False, null=False, max_length=15, verbose_name='Degree Code')
+    curriculum_code = models.CharField(blank=False, null=False, max_length=15, verbose_name='Curriculum Code')
+    degree_type_code = models.CharField(blank=False, null=False, max_length=15, verbose_name='Type of Degree Code')
+    degree_description = models.CharField(blank=False, null=False, max_length=250, verbose_name='Degree Description')
+    curriculum_description = models.CharField(blank=False, null=False, max_length=250, verbose_name='Curriculum Description')
+    degree_type_description = models.CharField(blank=False, null=False, max_length=250, verbose_name='Type of Degree Description')
 
     def __str__(self):
         return self.degree_code + ' - ' + self.curriculum_code
@@ -100,8 +100,8 @@ class Degree(models.Model):
 
 
 class DegreeCourses(models.Model):
-    degree_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Degree Code')
-    curriculum_code = models.CharField(blank=False, null=False, max_length=5, verbose_name='Curriculum Code')
+    degree_code = models.CharField(blank=False, null=False, max_length=15, verbose_name='Degree Code')
+    curriculum_code = models.CharField(blank=False, null=False, max_length=15, verbose_name='Curriculum Code')
     af_id = models.IntegerField(blank=False, null=False, verbose_name='AF ID')
 
     def __str__(self):
@@ -119,10 +119,10 @@ class DegreeCourses(models.Model):
 class Course(models.Model):
     af_id = models.IntegerField(blank=False, null=False, verbose_name='AF ID', primary_key=True)
     ar_id = models.IntegerField(blank=False, null=False, verbose_name='AR ID')
-    name = models.CharField(blank=True, null=False, default='', verbose_name="Name", max_length=150)
+    name = models.CharField(blank=True, null=False, default='', verbose_name="Name", max_length=250)
     code = models.CharField(blank=False, null=False, default='CT?', verbose_name="Code", max_length=15)
     year = models.PositiveSmallIntegerField(null=False, default=0, verbose_name="Year")
-    partition = models.CharField(blank=True, null=False, default='', verbose_name="Partition", max_length=150)
+    partition = models.CharField(blank=True, null=False, default='', verbose_name="Partition", max_length=250)
     creation_datetime = models.DateTimeField(null=False, blank=False, auto_now_add=True, verbose_name="Creation Datetime")
     has_lessons = models.BooleanField(null=False, blank=False, default=True, verbose_name="Has Lesson")
 
@@ -172,10 +172,10 @@ class Lesson(models.Model):
 class LessonLocation(models.Model):
     id = models.IntegerField(blank=False, null=False, primary_key=True, verbose_name='ID')
     lesson = models.ForeignKey('Lesson', null=False, blank=False, on_delete=models.CASCADE, verbose_name="Lesson")
-    location = models.CharField(blank=True, null=False, default='', verbose_name="Location", max_length=150)
-    name = models.CharField(blank=False, null=False, verbose_name="Name", max_length=150)
-    prof = models.CharField(blank=True, null=False, default='', verbose_name="Prof", max_length=150)
-    notes = models.CharField(blank=True, null=False, default='', verbose_name="Notes", max_length=150)
+    location = models.CharField(blank=True, null=False, default='', verbose_name="Location", max_length=250)
+    name = models.CharField(blank=False, null=False, verbose_name="Name", max_length=250)
+    prof = models.CharField(blank=True, null=False, default='', verbose_name="Prof", max_length=250)
+    notes = models.CharField(blank=True, null=False, default='', verbose_name="Notes", max_length=250)
 
     def __eq__(self, other):
         return isinstance(other, Lesson) and \
