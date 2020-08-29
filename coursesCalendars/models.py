@@ -173,9 +173,9 @@ class LessonLocation(models.Model):
     id = models.IntegerField(blank=False, null=False, primary_key=True, verbose_name='ID')
     lesson = models.ForeignKey('Lesson', null=False, blank=False, on_delete=models.CASCADE, verbose_name="Lesson")
     location = models.CharField(blank=True, null=False, default='', verbose_name="Location", max_length=250)
-    name = models.CharField(blank=False, null=False, verbose_name="Name", max_length=250)
-    prof = models.CharField(blank=True, null=False, default='', verbose_name="Prof", max_length=250)
-    notes = models.CharField(blank=True, null=False, default='', verbose_name="Notes", max_length=250)
+    name = models.CharField(blank=False, null=False, verbose_name="Name", max_length=25)
+    prof = models.CharField(blank=True, null=False, default='', verbose_name="Prof", max_length=150)
+    notes = models.CharField(blank=True, null=False, default='', verbose_name="Notes", max_length=700)
 
     def __eq__(self, other):
         return isinstance(other, Lesson) and \

@@ -5,7 +5,7 @@ from coursesCalendars.models import Course, Lesson, LessonLocation, DegreeCourse
 
 def erase_table(table_name):
     cursor = connection.cursor()
-    sql = "DELETE FROM %s;" % (table_name,)
+    sql = "DELETE FROM \"%s\";" % (table_name,)
     cursor.execute(sql)
 
 
