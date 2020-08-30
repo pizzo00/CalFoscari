@@ -1,14 +1,11 @@
 from django.core.management.base import BaseCommand
 from django.db import connection
-from ics import Calendar as icsCalendar
-import requests
-from django.utils import timezone
 from coursesCalendars.models import Color
 
 
 def erase_table(table_name):
     cursor = connection.cursor()
-    sql = "DELETE FROM %s;" % (table_name,)
+    sql = "DELETE FROM \"%s\";" % (table_name,)
     cursor.execute(sql)
 
 

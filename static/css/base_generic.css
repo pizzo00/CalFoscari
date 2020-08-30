@@ -12,7 +12,7 @@ body {
 
 .bg-foscari
 {
-  background-color: #ac0033;
+  background-color: #ac0033!important;
 }
 
 .form-control:focus {
