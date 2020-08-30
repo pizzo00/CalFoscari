@@ -5,7 +5,7 @@
     <head>
         <title>{% block title %}{{ site_title }}{% endblock %}</title>
         <meta charset="utf-8">
-        <meta name="theme-color" content="#007bff">
+        <meta name="theme-color" content="#ac0033">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="shortcut icon" href="{% static 'logo.ico' %}">
 
@@ -70,7 +70,7 @@
                                     <div class="dropdown-divider"></div>
                                 {% endif %}
                                 {% if user.has_usable_password %}
-                                    <a class="dropdown-item onFocusDanger {% if request.path == password_change or request.path == password_change_done %} active {% endif %}" href="{{ password_change }}">Change
+                                    <a class="dropdown-item onFocusDanger {% if request.path == password_change or request.path == password_change_done %} active bg-foscari {% endif %}" href="{{ password_change }}">Change
                                         password</a>
                                 {% endif %}
                                 <a class="dropdown-item onFocusDanger" href="{{ logout }}">Log out</a>
