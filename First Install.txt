@@ -1,0 +1,12 @@
+Make startup.sh runnable
+	chmod +x ./startup.sh
+
+Create first admin
+	python3 manage.py createsuperuser
+	python3 manage.py addstatictoken user
+
+Add colors to db
+	python3 manage.py add_colors
+
+Get courses
+	python3 manage.py get_all_courses
