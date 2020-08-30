@@ -9,7 +9,7 @@ services:
       network: host
     command: ./startup.sh
     volumes:
-      - /var/www/calfoscari/static:/code/static
+      - /var/www/calfoscari/static:/code/serverStatic
       - /var/www/calfoscari/media:/code/media
     ports:
       - "8003:8003"
