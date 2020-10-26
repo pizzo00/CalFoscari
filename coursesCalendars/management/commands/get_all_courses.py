@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 def get_degrees():
-    url = "http://static.unive.it/sitows/didattica/corsi"
+    url = "http://apps.unive.it/sitows/didattica/corsi"
     degrees_json = json.loads(requests.get(url).text)
 
     degrees = []
@@ -23,7 +23,7 @@ def get_degrees():
 
 
 def get_degrees_courses():
-    url = "https://static.unive.it/sitows/didattica/corsiinsegnamenti"
+    url = "https://apps.unive.it/sitows/didattica/corsiinsegnamenti"
     degrees_courses_json = json.loads(requests.get(url).text)
 
     degrees_courses = []
@@ -37,7 +37,7 @@ def get_degrees_courses():
 
 
 def get_sites():
-    url = "https://static.unive.it/sitows/didattica/sedi"
+    url = "https://apps.unive.it/sitows/didattica/sedi"
     sites_json = json.loads(requests.get(url).text)
 
     output = dict()
@@ -48,7 +48,7 @@ def get_sites():
 
 
 def get_locations(sites):
-    url = "https://static.unive.it/sitows/didattica/aule"
+    url = "https://apps.unive.it/sitows/didattica/aule"
     locations_json = json.loads(requests.get(url).text)
 
     output = dict()
@@ -62,7 +62,7 @@ def get_locations(sites):
 
 
 def get_lessons(locations):
-    url = "https://static.unive.it/sitows/didattica/lezioni"
+    url = "https://apps.unive.it/sitows/didattica/lezioni"
     lessons_json = json.loads(requests.get(url).text)
 
     lessons_dict = {}
@@ -104,7 +104,7 @@ def get_lessons(locations):
 
 
 def get_courses(ar_ids_of_courses_with_lessons):
-    url = "https://static.unive.it/sitows/didattica/insegnamenti"
+    url = "https://apps.unive.it/sitows/didattica/insegnamenti"
     courses_json = json.loads(requests.get(url).text)
 
     courses = []
